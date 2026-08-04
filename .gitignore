@@ -23,6 +23,14 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+# Explicitly ignore .vs, bin, obj at ANY nesting depth
+# (covers backend/frontend folders being nested inside each other)
+**/.vs/
+**/[Bb]in/
+**/[Oo]bj/
+**/[Ll]og/
+**/[Ll]ogs/
+
 # .NET Core
 project.lock.json
 project.fragment.lock.json
@@ -55,3 +63,48 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+## ---------------------------------------------------
+## React / Node.js frontend (nested frontend folder)
+## ---------------------------------------------------
+
+# Dependencies
+**/node_modules/
+**/.pnp
+**/.pnp.js
+**/.yarn/install-state.gz
+
+# Production build output
+**/build/
+**/dist/
+**/.next/
+**/out/
+
+# Testing
+**/coverage/
+
+# Environment files
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# Logs (npm/yarn/pnpm)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor/IDE
+**/.vscode/
+**/.idea/
+
+# OS files
+**/.DS_Store
+**/Thumbs.db
+
+# Misc caches
+**/.cache/
+**/.eslintcache
+**/.parcel-cache/
