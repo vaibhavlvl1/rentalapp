@@ -7,5 +7,7 @@ namespace rental_system.Interfaces.IServices
         public Task <ApiResponseDto> LoginAsync(PhoneLoginDto phoneLoginRequest);
 
         public Task<ApiResponseDto> LoginOrRegisterGoogleUserAsync(GoogleLoginDto GoogleDetails);
+
+        public Task<ApiResponseDto> DecodeTokenAsync();
     }
 }

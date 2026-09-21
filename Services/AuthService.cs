@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using rental_system.Interfaces.IRepositories;
 using rental_system.Interfaces.IServices;
 using rental_system.Models.Dtos;
@@ -11,17 +12,19 @@ using BC = BCrypt.Net.BCrypt;
 
 namespace rental_system.Services
 {
-    public class AuthService:IAuthService
+    public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepo;
         private readonly IConfiguration _config;
-        public AuthService(IUserRepository userRepo,IConfiguration config)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AuthService(IUserRepository userRepo, IConfiguration config, IHttpContextAccessor httpContextAccessor)
         {
             _userRepo = userRepo;
             _config = config;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task <ApiResponseDto> LoginAsync(PhoneLoginDto PhoneLoginRequest)
+        public async Task<ApiResponseDto> LoginAsync(PhoneLoginDto PhoneLoginRequest)
         {
             string password = PhoneLoginRequest.Password;
 
@@ -34,12 +37,12 @@ namespace rental_system.Services
                     message = "User Not Found"
                 };
             }
-        
+
             var user = await _userRepo.FetchUserFromDbAsync(PhoneLoginRequest.Phone);
 
-           
 
-            bool isPasswordValid = BC.Verify( password, user.PasswordHash);
+
+            bool isPasswordValid = BC.Verify(password, user.PasswordHash);
 
             if (!isPasswordValid)
             {
@@ -68,7 +71,7 @@ namespace rental_system.Services
                         }
                     }
                 };
-            }            
+            }
         }
         //JWT Generator
         private string GenerateJwtToken(UserEntity user)
@@ -103,7 +106,7 @@ namespace rental_system.Services
         {
             var user = await _userRepo.GetUserByEmailAsync(GoogleDetails.Gemail);
 
-            if(user is null)
+            if (user is null)
             {
                 UserEntity newGoogleUser = new UserEntity
                 {
@@ -121,7 +124,7 @@ namespace rental_system.Services
                 var newUser = await _userRepo.CreateNewUserAsync(newGoogleUser);
 
                 string token = GenerateJwtToken(newUser);
-              
+
                 return new ApiResponseDto
                 {
                     message = "Successfull",
@@ -160,5 +163,37 @@ namespace rental_system.Services
             };
         }
 
+        // verify the sent token to extract userInformation
+
+        public async Task<ApiResponseDto> DecodeTokenAsync()
+        {
+
+            
+            var User = _httpContextAccessor.HttpContext?.User;
+
+            var name = User.FindFirstValue(ClaimTypes.Name);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var phone = User.FindFirstValue(ClaimTypes.MobilePhone);
+            var emailAddress = User.FindFirstValue(ClaimTypes.Email);
+
+            return new ApiResponseDto
+            {
+                status = 200,
+                message = "Login Successfull",
+                data = new
+                {
+                    token = "",
+                    user_data = new
+                    {
+                        user_id = "",
+                        fullName = name,
+                        phone = phone,
+                        email = emailAddress,
+                    }
+                }
+            };
+
+
+        }
     }
 }

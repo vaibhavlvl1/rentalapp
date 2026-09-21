@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using rental_system.Interfaces.IServices;
@@ -11,7 +12,7 @@ namespace rental_system.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController :BaseApiController
+    public class AuthController : BaseApiController
     {
         private IAuthService _authService;
 
@@ -26,6 +27,7 @@ namespace rental_system.Controllers
         public async Task<IActionResult> Login([FromBody] PhoneLoginDto PhoneLoginRequest)
         {
             var response = await _authService.LoginAsync(PhoneLoginRequest);
+            
             return HandleResponse(response);
         }
 
@@ -72,5 +74,14 @@ namespace rental_system.Controllers
 
 
 
-    }   
+
+        [Authorize]
+        [HttpPost("me")]
+        public async Task<IActionResult> Me()
+        {
+            var response = await _authService.DecodeTokenAsync();
+
+            return HandleResponse(response);
+        }
+    }
 }

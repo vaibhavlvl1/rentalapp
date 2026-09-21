@@ -17,6 +17,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//to access user context in authservice
+builder.Services.AddHttpContextAccessor();
+
 //My services
 var connectionString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
@@ -58,6 +61,21 @@ builder.Services.AddAuthentication(options =>
 });
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowTestingApp", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5173", // React/Vite
+                "http://localhost:3000"  // React/other frontend
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 
 //My services end
 
@@ -71,7 +89,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowTestingApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
